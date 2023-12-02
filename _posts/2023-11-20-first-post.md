@@ -1,19 +1,19 @@
 ---
-title: Example
-date: 2023-11-24 12:00:00 -500
-categories: [a, b, c]
-tags: [abc, def, ghi]
+title: gergewr
+date: 2023-11-20 10:12:10 +/-500
+categories: [fvsd, gsd]
+tags: [fsdf]     # TAG names should always be lowercase
 ---
 
 # Hello World
 
 Hello World. This is my first post.
 lorem
-<!-- ```rust
+```rust
 fn main(){
     println!("Hello World");
 }
-``` -->
+```
 
 ```yml
 name: 'push-remote'
