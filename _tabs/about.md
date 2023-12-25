@@ -21,6 +21,6 @@ Happy coding!
 *Yes, this was written with the help of a GPT {Guess which one :P}* <br>
 *But I promise this is the only page of its kind.*
 </small> -->
-<span style="font-size: 75%;">
+<!-- <span style="font-size: 75%;">
 *Yes, this was written with the help of a GPT {Guess which one :P}* <br>*But I promise this is the only page of its kind.*
-</span>
+</span> -->
