@@ -14,6 +14,6 @@ order: 4
 — Socrates
 
 
-hi. here i post what i learn and document my horrible attempts at building full-stack applications (with a sprinkle of AI). i plan on doing so indefinitely, or until the singularity is achieved. 
+hi. here i post what i learn and document my horrible attempts at building full-stack applications (with a sprinkle of AI). i plan on doing so indefinitely, or until singularity is achieved. 
 
-thanks for reading this. 
+talk AI to me :)
