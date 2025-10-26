@@ -65,7 +65,40 @@ ninja.data = [{
               handler: () => {
                 window.location.href = "/blog/";
               },
-            },{id: "post-deep-dive-sequence-to-sequence-learning-with-neural-networks",
+            },{id: "post-how-some-projects-use-multiple-programming-languages",
+        
+          title: "How some projects use Multiple Programming Languages",
+        
+        description: "a lot more goes on with system calls than one would imagine",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2025/lsm-trees-and-sstables/";
+          
+        },
+      },{id: "post-how-some-projects-use-multiple-programming-languages",
+        
+          title: "How some projects use Multiple Programming Languages",
+        
+        description: "a lot more goes on with system calls than one would imagine",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2025/multiple-languages/";
+          
+        },
+      },{id: "post-kernels-and-system-calls",
+        
+          title: "Kernels and system calls",
+        
+        description: "a lot more goes on with system calls than one would imagine",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2025/system-calls/";
+          
+        },
+      },{id: "post-deep-dive-sequence-to-sequence-learning-with-neural-networks",
         
           title: "Deep Dive ~ Sequence to Sequence Learning with Neural Networks",
         
@@ -455,12 +488,7 @@ ninja.data = [{
             },},{id: "news-a-simple-inline-announcement-with-markdown-emoji-sparkles-smile",
           title: 'A simple inline announcement with Markdown emoji! :sparkles: :smile:',
           description: "",
-          section: "News",},{id: "projects-project-1",
-          title: 'project 1',
-          description: "with background image",
-          section: "Projects",handler: () => {
-              window.location.href = "/projects/1_project/";
-            },},{id: "projects-project-2",
+          section: "News",},{id: "projects-project-2",
           title: 'project 2',
           description: "a project with a background image and giscus comments",
           section: "Projects",handler: () => {
@@ -500,6 +528,11 @@ ninja.data = [{
           description: "another project with an image 🎉",
           section: "Projects",handler: () => {
               window.location.href = "/projects/9_project/";
+            },},{id: "projects-bifrost-hash-join-engine",
+          title: 'Bifrost - Hash Join Engine',
+          description: "Implementation of Hash Join Engine with multiple hash functions and benchmarking",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/bifrost/";
             },},{
         id: 'social-email',
         title: 'email',
