@@ -13,4 +13,4 @@ The Linux kernel provides tricks to make common system calls cheaper. Frequent c
 
 the kernel is what ensures that you dont accidently delete 
 
-https://www.youtube.com/watch?v=XJC5WB2Bwrc&t=1s
+https://youtu.be/ciGAVER_erw?si=ztzSwva9nXwxbZbP
