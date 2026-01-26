@@ -1,17 +1,70 @@
 ---
 layout: post
-title: Slowloris - The Silent Connection Killer
+title: How One Laptop Can Take Down an Entire Server
 date: 2026-01-24 00:00:00
 description: A deep dive into Slowloris HTTP attacks - how they work, why they're dangerous, and how to defend against them
 tags: http tcp apache nginx ddos security
 categories: cybersecurity
 ---
 
-For some reason, the word "Denial of Service" always sounded cool to me. This led me to explore more about them and eventually dive deeper into the world of cybersecurity too. Growing up, I used to read about Denial of Service attacks happening quite regularly to almost all famous organisations. While they are still quite common, the modern-day internet is distributed and robust enough to handle most of these attacks at scale. 
+For some reason, the word "Denial of Service" always sounded cool to me. This led me to explore more about them and eventually dive deeper into the world of cybersecurity too. Growing up, I used to read about Denial of Service attacks happening quite regularly to almost every major organisation. While they are still quite common, the modern-day internet is distributed and robust enough to handle most of these attacks at scale. 
 
 The ingenuity behind some of these attacks is what interested me the most, exploiting fundamental protocol behaviors and slowly building up something to take down a large-scale infrastructure. So that is what I will be discussing in this post. Coincidentally, this was also the topic of my first research internship.
 
 Most DDoS attacks are loud, high-bandwidth floods. **Slowloris** is the silent killer—an insidious attack that exhausts server resources using minimal bandwidth. In a world of brute force, it proves that being slow can be a devastating weapon. To defend against it, you must ensure that slow clients are cheap for you and expensive for the attacker.
+
+---
+
+## The Anatomy of DoS Attacks
+
+Before diving into Slowloris, let's understand the broader landscape. DoS attacks can be categorized by what resource they target:
+
+### Bandwidth-Based Attacks
+
+The brute force approach. Imagine your server has a 50 Mbps download capacity—it can only process 50 megabits of data per second. An attacker with 100 Mbps upload speed simply floods you with more data than you can handle.
+
+The server spends all its time processing junk traffic, leaving nothing for legitimate users. ISPs will throttle you, firewalls will choke, and your users see nothing but timeouts.
+
+**Reality check:** This requires massive resources. That's why attackers use botnets—fleets of compromised "zombie" devices all attacking simultaneously. Think SYN floods, DNS amplification, and the classic volumetric DDoS.
+
+### Connection-Based Attacks
+
+Every HTTP request is a TCP connection underneath. TCP is *stateful*—your server must remember each client: allocating memory, CPU cycles, file descriptors.
+
+Servers can't maintain unlimited connections. They set a cap—maybe 150 concurrent connections for Apache. Hit that limit, and new users get "503 Service Unavailable."
+
+**The naive attack:** Open 150 connections and do nothing. But servers aren't stupid—they timeout idle connections after a few seconds. Connection killed. Nice try.
+
+**The clever attack:** What if you stay *just* active enough? Send one byte... wait... send another byte. The server thinks you're a slow client on a bad network. It waits patiently. Timer resets. Connection lives.
+
+This is **Slowloris**.
+
+### Vulnerability-Based Attacks
+
+The surgical strike. Instead of exhausting resources, exploit a bug in the software itself—a malformed request that crashes the process, a regex that causes catastrophic backtracking, a buffer overflow.
+
+One carefully crafted packet. Backend down. Cold restart takes minutes while users stare at error pages.
+
+Examples: Node.js prototype pollution, OpenSSL Heartbleed, regex denial-of-service (ReDoS).
+
+**This is the most dangerous category**—it requires the least bandwidth and causes the most damage.
+
+---
+
+## What Attackers Really Want
+
+The goal is always the same: **exhaust resources** (CPU, memory, network bandwidth) so the backend can't serve legitimate users. The creativity lies in *how*:
+
+| Strategy | How It Works | Difficulty |
+|----------|--------------|------------|
+| **Long-running requests** | Requests that take forever to process, starving others | Easy |
+| **Crash the backend** | Exploit vulnerabilities to take the server down | Medium |
+| **Exhaust max connections** | Hold all connection slots hostage | Medium |
+| **Large responses** | Bloated payloads (1.5MB initial loads!) exhaust bandwidth | Easy |
+| **Flood with requests** | Classic botnet volumetric attack | Hard (needs resources) |
+| **Complex requests** | CPU-intensive operations (bad regex, heavy queries) | Medium |
+
+Slowloris sits in the sweet spot: **easy to execute, hard to detect, devastating in impact**.
 
 ---
 
@@ -108,6 +161,14 @@ ss -tan | awk '{print $1}' | sort | uniq -c
 ---
 
 ## Defensive Configurations
+
+The fundamental principle: **make slow clients expensive for attackers, cheap for you**.
+
+What to think about:
+- **Long-running requests:** Identify what might take a long time (CPU-bound? I/O-bound? Complex regex?)
+- **Timeouts everywhere:** Request level, response level, database level. If something takes too long, kill it.
+- **Rate limiting:** API gateways and reverse proxies are your friends
+- **Assume malice:** Don't trust that clients will behave nicely
 
 ### Apache Defense: mod_reqtimeout
 
@@ -207,6 +268,21 @@ Placing a **reverse proxy (Nginx, HAProxy) or CDN (Cloudflare, AWS CloudFront)**
 1. **Request Buffering:** Edge servers buffer complete requests before forwarding to origin
 2. **Large Connection Pools:** CDNs have much larger capacity to absorb connection exhaustion
 3. **Built-in Rate Limiting:** Most CDN/WAF services detect and block slow-rate attacks automatically
+
+### Layer 7 vs Layer 4 Protection
+
+**Layer 7 (Application Layer):** Services like Cloudflare terminate your TLS connection. Your DNS points to *their* servers first. They see everything—HTTP headers, request bodies, cookies. 
+
+This deep visibility means they can:
+- Analyze request patterns for malicious behavior
+- Block suspicious requests before they reach you
+- Distinguish between slow attackers and legitimately slow clients
+
+*The trade-off:* Some organizations aren't comfortable with a third party seeing all their traffic.
+
+**Layer 4 (Transport Layer):** Some services only inspect TCP/IP—source IP, destination port, connection patterns. No visibility into the actual HTTP content.
+
+This is faster and more privacy-preserving, but provides less protection against application-layer attacks like Slowloris. If the malicious content is *inside* the HTTP request, Layer 4 can't see it.
 
 **Cloudflare:** Enable DDoS protection at Security → DDoS → set sensitivity to "High"
 
