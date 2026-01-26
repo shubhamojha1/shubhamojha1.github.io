@@ -65,9 +65,9 @@ ninja.data = [{
               handler: () => {
                 window.location.href = "/blog/";
               },
-            },{id: "post-slowloris-the-silent-connection-killer",
+            },{id: "post-how-one-laptop-can-take-down-an-entire-server",
         
-          title: "Slowloris - The Silent Connection Killer",
+          title: "How One Laptop Can Take Down an Entire Server",
         
         description: "A deep dive into Slowloris HTTP attacks - how they work, why they&#39;re dangerous, and how to defend against them",
         section: "Posts",
