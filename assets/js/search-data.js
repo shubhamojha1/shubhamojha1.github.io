@@ -65,7 +65,18 @@ ninja.data = [{
               handler: () => {
                 window.location.href = "/blog/";
               },
-            },{id: "post-how-one-laptop-can-take-down-an-entire-server",
+            },{id: "post-the-hidden-engineering-behind-whatsapp-39-s-quot-typing-quot-indicator",
+        
+          title: "The Hidden Engineering Behind WhatsApp&#39;s &quot;Typing...&quot; Indicator",
+        
+        description: "",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2026/whatsapp-final/";
+          
+        },
+      },{id: "post-how-one-laptop-can-take-down-an-entire-server",
         
           title: "How One Laptop Can Take Down an Entire Server",
         
