@@ -9,7 +9,7 @@ categories: system-design web
 
 <!-- ## Introduction: A Feature You Use Without Thinking -->
 
-> **TL;DR:** Persistent WebSocket connections over TCP that are handled in-memory using ephemeral light-weight event-handling from source user, mapped to the destination user. Debouncing to prevent network flooding, and separate message queues.
+<!-- > **TL;DR:** Persistent WebSocket connections over TCP that are handled in-memory using ephemeral light-weight event-handling from source user, mapped to the destination user. Debouncing to prevent network flooding, and separate message queues. -->
 
 ## A Feature You Use Without Thinking
 
@@ -33,16 +33,16 @@ Let's start with the simplest possible solution: send an HTTP request on every k
 ```
 Alice (Client)          Server              Bob (Client)
     │                     │                      │
-    │──KeyPress 1: "h"──►│                      │
+    │───────────────"h"──►│                      │
     │                     │◄────Poll────────────│
     │                     │──"Alice typing"────►│ (shows indicator)
-    │──KeyPress 2: "e"──►│                      │
+    │───────────────"e"──►│                      │
     │                     │                      │
-    │──KeyPress 3: "l"──►│                      │
+    │───────────────"l"──►│                      │
     │                     │◄────Poll────────────│
     │                     │──"Alice typing"────►│
-    │──KeyPress 4: "l"──►│                      │
-    │──KeyPress 5: "o"──►│                      │
+    │───────────────"l"──►│                      │
+    │───────────────"o"──►│                      │
     │                     │◄────Poll────────────│
     │                     │──"Alice typing"────►│
     │──Send Message──────►│                      │
@@ -244,7 +244,7 @@ The "typing..." indicator disappears when:
 3. **Connection drops**: If Alice loses network, her connection closes and server automatically cleans up her state
 4. **User closes app**: WebSocket closes automatically
 
-The key: the server is *authoritative*. Bob doesn't guess when Alice stopped—the server tells him.
+The key: the server is *authoritative*. Bob doesn't guess when Alice stopped, the server tells him.
 
 ### Privacy: Encryption Beyond Messages
 
@@ -267,7 +267,7 @@ Prevent network flooding from rapid keystrokes. WhatsApp uses **both techniques 
 - If Alice doesn't type within that window, she simply stops sending typing events
 
 **Server-side Authority:**
-The server is authoritative. It tracks the timestamp of Alice's last typing event. Every few seconds, it checks: "Is it >3-5 seconds since the last event?" If yes, Alice is automatically removed from the typing list and Bob's indicator disappears—no explicit stop message needed.
+The server is authoritative. It tracks the timestamp of Alice's last typing event. Every few seconds, it checks: "Is it >3-5 seconds since the last event?" If yes, Alice is automatically removed from the typing list and Bob's indicator disappears, no explicit stop message needed.
 
 This approach balances three concerns:
 - **User experience**: Indicator feels responsive, not flickery
@@ -279,7 +279,7 @@ This approach balances three concerns:
 ### Race Condition: Message Arrives Before Typing Stops
 
 **Problem:**
-Alice sends a message while Bob still sees "typing..." indicator—creates momentary confusion.
+Alice sends a message while Bob still sees "typing..." indicator, creates momentary confusion.
 
 **Solution:**
 1. Client clears typing indicator immediately when receiving a message from that user
@@ -298,7 +298,7 @@ Alice types on her laptop. Her phone also shows "Alice is typing" (confusing) an
 1. Each device has a unique `device_id` in every typing event
 2. Server broadcasts typing events to recipient's devices only, excluding the sender's own devices
 3. Alice's phone recognizes it's the same user and silently suppresses the indicator
-4. Only *contacts* see "Alice is typing"—Alice's own devices don't
+4. Only *contacts* see "Alice is typing", Alice's own devices don't
 
 **Why it matters:** Prevents self-notifications and keeps typing state accurate across multiple device ownership.
 
@@ -311,7 +311,7 @@ In a 100+ person group, 10 people typing simultaneously creates chaos: "Alice is
 1. Server aggregates: maintain a set of active typers, not individual events
 2. UI displays only first 3 names: "Alice, Bob, Carol are typing"
 3. If 4+ people typing, show: "Alice, Bob, Carol and 7+ others are typing"
-4. For very large groups (500+ members), disable typing indicators entirely—performance trade-off
+4. For very large groups (500+ members), disable typing indicators entirely (performance trade-off)
 
 **Why it matters:** Keeps UI readable and prevents server from broadcasting O(n) events for each keystroke.
 
@@ -323,7 +323,7 @@ Alice's phone loses network (airplane mode, tunnel). WebSocket closes but her ty
 **Solution:**
 1. Client detects connection loss and immediately clears local typing indicators in UI
 2. Server detects WebSocket close and removes Alice from typing list instantly
-3. Redis TTL (5-10 seconds) is the final safety net—auto-expires any stale state
+3. Redis TTL (5-10 seconds) is the final safety net (auto-expires any stale state)
 4. On reconnection: Client re-establishes presence but does NOT restore typing state (start fresh)
 
 **Why it matters:** Prevents false "still typing" indicators when user is actually unreachable.
@@ -336,7 +336,7 @@ Alice types "hello world" then deletes everything (backspace). Should she stay i
 **Solution:**
 1. Client continues sending throttled typing events while any text exists in compose box
 2. Once compose box is empty, client stops sending typing events (same as if she paused)
-3. No special "cleared text" event needed—just stop typing
+3. No special "cleared text" event needed, just stop typing
 4. Server timeout handles cleanup if she never sends a message
 
 **Why it matters:** Simple rule: typing indicator ≠ text exists, it means "user is actively composing." Empty box = not actively composing.
@@ -349,10 +349,10 @@ Alice is typing to Bob. Bob blocks Alice. Alice's indicator should disappear imm
 **Solution:**
 1. When block occurs, Bob's client immediately unsubscribes from Alice's typing channel
 2. Alice continues sending typing events (she doesn't know she's blocked) but they're never delivered
-3. No server-side logic needed—block is enforced at the client subscription level
+3. No server-side logic needed, block is enforced at the client subscription level
 4. If Bob unblocks, subscription resumes on next typing event
 
-**Why it matters:** Respects user privacy—Alice doesn't know why her indicator disappeared, Bob doesn't see her typing.
+**Why it matters:** Respects user privacy, Alice doesn't know why her indicator disappeared, Bob doesn't see her typing.
 
 ### Server Overload: Typing Event Queue Backs Up
 
@@ -362,7 +362,7 @@ Server is under load. Typing event queue has 10-second backlog. Messages are bei
 **Solution:**
 1. Typing events have lower priority than messages in queue
 2. If queue depth exceeds threshold, drop some typing events (they're ephemeral, losing one is fine)
-3. Messages always get through—typing indicators can wait
+3. Messages always get through, typing indicators can wait
 4. Client resends typing event every 3-5 seconds anyway, so dropped events recover naturally
 
 **Why it matters:** Ensures critical message delivery isn't sacrificed for non-critical presence updates.
@@ -378,7 +378,7 @@ Alice closes app for 10 minutes. Reconnects. Should she resume typing state? Def
 3. Server has already auto-expired stale state via Redis TTL
 4. Bob's indicator disappeared 5-10 seconds after Alice closed the app
 
-**Why it matters:** Typing state is ephemeral by design—reconnection is a hard reset.
+**Why it matters:** Typing state is ephemeral by design, reconnection is a hard reset.
 
 ## Privacy & Security: How Metadata can still reveal a lot about you
 
